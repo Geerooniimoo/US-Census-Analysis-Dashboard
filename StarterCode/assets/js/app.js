@@ -59,7 +59,7 @@ xTextRefresh();
 
 yTextRefresh = () => {
     yText.attr(
-        "transfom",
+        "transform",
         `translate(${leftTextX},${leftTextY})rotate(-90)`
     );
 };
@@ -99,7 +99,7 @@ visualize = theData => {
         .tip()
         .attr("class","d3-tip") 
         .offset([40,-60])
-        .html(function (d) {
+        .html(d => {
             var theX;
             var theState=`<div>${d.state}</div>`;
             var theY=`<div>${curY}:${d[curY]}%</div>`;
@@ -122,6 +122,24 @@ visualize = theData => {
         .on("mouseover",d => {
             toolTip.show(d, this);
             d3.select(this).style("stroke","#323232");
+        })
+        .on("mouseout",d => {
+            toolTip.hide(d);
+            d3.select(this).style("stroke","#e3e3e3")
+        });
+    theCircles.append("text")
+        .text(d => d.abbr)
+        .attr("dx",d => xScale(d[curX]))
+        .attr("dy",d => yScale(d[curY]+circRadius/2.5))
+        .attr("font-size",circRadius)
+        .attr("class","stateText")
+        .on("mouseover",d => {
+            toolTip.show(d);
+            d3.select(`.${d.abbr}`).style("stroke","#323232");
+        })
+        .on("mouseout",d => {
+            toolTip.hide(d);
+            d3.select(`.${d.abbr}`).style("stroke","#e3e3e3");
         });
 
     var xAxis=d3.axisBottom(xScale);
@@ -146,7 +164,7 @@ visualize = theData => {
     tickCount();
 
     labelChange = (axis,clickedText) => {
-        d3.select(".aText")
+        d3.selectAll(".aText")
             .filter("."+axis)
             .filter(".active")
             .classed("active",false)
