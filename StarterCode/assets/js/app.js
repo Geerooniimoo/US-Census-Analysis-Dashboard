@@ -165,13 +165,62 @@ visualize = theData => {
 
     labelChange = (axis,clickedText) => {
         d3.selectAll(".aText")
-            .filter("."+axis)
+            .filter(`.${axis}`)
             .filter(".active")
             .classed("active",false)
             .classed("inactive",true);
         
         clickedText.classed("inactive",false).classed("active",true);
     }
+
+    d3.selectAll(".aText").on("click", () => {
+        var self=d3.select(this);
+
+        if (self.classed("inactive")) {
+            var axis=self.attr("data-axis");
+            var name=self.attr("data-name");
+
+            if (axis==="x") {
+                curX=name;
+                xScale.domain([xMin,xMax]);
+                svg.select(".xAxis").transition().duration(300).call(xAxis);
+                d3.selectAll("circle").each(() => {
+                    d3.select(this)
+                        .transition()
+                        .attr("cx",d => xScale(d[curX])).duration(300);
+                });
+
+                d3.selectAll(".stateText").each(() => {
+                    d3.select(this)
+                        .transition()
+                        .attr("dx",d => xScale(d[curX])).duration(300)
+                });
+
+                labelChange(axis,self);
+
+            } else {
+                curY=name;
+                yMinMax();
+                yScale.domin([yMin,yMax]);
+                svg.select(".yAxis").transition().duration(300).call(yAxis);
+                d3.selectAll("circle").each(() => {
+                    d3.select(this)
+                        .transition()
+                        .attr("cy",d => yScale(d[curY]))
+                        .duration(300)
+                });
+
+                d3.selectAll(".stateText").each(() => {
+                    d3.select(this)
+                        .transition()
+                        .attr("dy", d => yScale(d[curY])+circRadius/3)
+                        .duration(300);
+                });
+
+                labelChange(axis,self);
+            }
+        }
+    });
 }
 
 
