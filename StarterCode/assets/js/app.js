@@ -1,6 +1,3 @@
-d3.csv("assets/data/data.csv").then(function (data) {
-    visualize(data);
-});
 
 var width = parseInt(d3.select("#scatter").style("width"));
 var height = width - width / 3.9;
@@ -39,12 +36,16 @@ yText.append("text").attr("y",-26).attr("data-name","obesity")
     .attr("data-axis","y").attr("class","aText aciive y")
     .text("Obese (%)");
 yText.append("text").attr("y",0).attr("data-name","smokes")
-    .attr("data-axis","y").attr("class","aText inaciive y")
+    .attr("data-axis","y").attr("class","aText inactive y")
     .text("Smokes (%)");
 yText.append("text").attr("y",26).attr("data-name","healthcare")
-    .attr("data-axis","y").attr("class","aText inaciive y")
+    .attr("data-axis","y").attr("class","aText inactive y")
     .text("Lacks Healthcare (%)");
 
+d3.csv("assets/data/data.csv").then(function (data) {
+    visualize(data);
+});
+    
 var circRadius;
 crGet = () => width <= 530 ? circRadius = 5 : circRadius = 10; 
 crGet();
@@ -182,6 +183,7 @@ visualize = theData => {
 
             if (axis==="x") {
                 curX=name;
+                xMinMax();
                 xScale.domain([xMin,xMax]);
                 svg.select(".xAxis").transition().duration(300).call(xAxis);
                 d3.selectAll("circle").each(() => {
