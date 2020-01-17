@@ -174,12 +174,12 @@ visualize=theData=>{
         .attr("cx",d=>xScale(d[curX]))
         .attr("cy",d=>yScale(d[curY]))
         .attr("r",circRadius)
-        .attr("class",d=>`stateCircle${d.abbr}`)
+        .attr("class",d=>`stateCircle ${d.abbr}`)
         .on("mouseover",function(d){
             toolTip.show(d,this);
             d3.select(this).style("stroke","#323232");
         })
-        .on("mouseout",d=>{
+        .on("mouseout",function(d){
             toolTip.hide(d);
             d3.select(this).style("stroke","#e3e3e3");
         });
@@ -210,20 +210,23 @@ visualize=theData=>{
                 xMinMax();
                 xScale.domain([xMin,xMax]);
                 svg.select(".xAxis").transition().duration(300).call(xAxis);
-                d3.selectAll("circle").each(()=>{
+                d3.selectAll("circle").each(function(){
                     d3
                       .select(this)  
                       .transition()
                       .attr("cx",function(d){
-                          return xScale(d[curX]).duration(300);
-                      });
+                          return xScale(d[curX]);
+                      })
+                      .duration(300);
                 });
 
-                d3.selectAll(".stateText").each(()=>{
+                d3.selectAll(".stateText").each(function(){
                     d3
                       .select(this)
                       .transition()  
-                      .attr("dx",d=>xScale(d[curX]))
+                      .attr("dx",function(d){
+                        return xScale(d[curX]);
+                      })
                       .duration(300);
                 });
 
@@ -233,7 +236,7 @@ visualize=theData=>{
                 yMinMax();
                 yScale.domain([yMin,yMax]);
                 svg.select(".yAxis").transition().duration(300).call(yAxis);
-                d3.selectAll("circle").each(()=>{
+                d3.selectAll("circle").each(function(){
                     d3
                       .select(this)  
                       .transition()
@@ -241,7 +244,7 @@ visualize=theData=>{
                       .duration(300);
                 });
 
-                d3.selectAll(".stateText").each(()=>{
+                d3.selectAll(".stateText").each(function(){
                     d3
                       .select(this)  
                       .transition()
@@ -258,7 +261,7 @@ visualize=theData=>{
     function resize(){
         width=parseInt(d3.select("#scatter").style("width"));
         height=width-width/3.9;
-        leftTextY=(height+lableArea)/2-labelArea;
+        leftTextY=(height+labelArea)/2-labelArea;
         svg.attr("width",width).attr("height",height);
         xScale.range([margin+labelArea,width-margin]);
         yScale.range([height-margin-labelArea,margin]);
@@ -271,7 +274,7 @@ visualize=theData=>{
         svg.select(".yAxis").call(yAxis);
         tickCount();
         xTextRefresh();
-        yTestRefresh();
+        yTextRefresh();
         crGet();
 
         d3
