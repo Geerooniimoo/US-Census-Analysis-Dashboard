@@ -12,9 +12,10 @@ var svg=d3
     .attr("width",width)
     .attr("height",height)
     .attr("class","chart")
+    .style("background","white")
 
 var circRadius;
-crGet=()=>width<=530?circRadius=5:circRadius=10;
+crGet=()=>width<=530?circRadius=7:circRadius=14;
 crGet();
 
 svg.append("g").attr("class","xText");
