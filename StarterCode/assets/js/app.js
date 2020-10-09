@@ -82,6 +82,7 @@ yText
     .text("Lacks Healthcare (%)")
     .attr("y", 26)
     .attr("data-name", "healthcare")
+
     .attr("data-axis", "y")
     .attr("class", "aText inactive y");
 
