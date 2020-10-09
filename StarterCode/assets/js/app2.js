@@ -114,20 +114,25 @@ d3.csv('assets/data/data.csv').then(data => {
         .selectAll('circle')
         .data(data)
         .enter();
-
+        
+        
     circles
         .append('circle')
         .attr('class','stateCircle')
         .attr('r',radius)
         .attr('cx', d => xScale(d[xValue]))
-        .attr('cy', d => yScale(d[yValue]));
+        .attr('cy', d => yScale(d[yValue]))
+        .transition()
+        .duration(1000)
         
     circles
         .append('text')
         .attr('class','stateText')
         .text(d=>d.abbr)
-        .attr('dx',d=>d[xValue])
-        .attr('dy',d=>d[yValue])
+        .attr('dx',d=>xScale(d[xValue]))
+        .attr('dy',d=>yScale(d[yValue]) + radius/2.5)
+        .transition()
+        .duration(1000)
 
 
 });
