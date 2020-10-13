@@ -140,6 +140,7 @@ visualize = theData => {
         .scaleLinear()
         .domain([xMin, xMax])
         .range([margin + labelArea, width - margin]);
+        
     var yScale = d3
         .scaleLinear()
         .domain([yMin, yMax])
