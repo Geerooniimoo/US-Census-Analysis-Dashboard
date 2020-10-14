@@ -15,8 +15,8 @@ d3.csv('assets/data/data.csv').then(data => {
     // CREATE RESPONSIVE DIMENSIONS
     width = parseInt(d3.select('#scatter').style('width'));
     height = width - width / 3.9
-    margin = .1 * width;
-    pad = .05 * width;
+    margin = .15 * width;
+    pad = .065 * width;
     radius = .02 * width;
 
     // CREATE SVG
@@ -36,39 +36,45 @@ d3.csv('assets/data/data.csv').then(data => {
     xText
         .append('text')
         .text('In Poverty (%)')
+        .attr('dataId','poverty')
         .attr('class', 'x active')
         .attr('y', -20);
-
-    xText
+        
+        xText
         .append('text')
         .text('Age (Medium)')
+        .attr('dataId','age')
         .attr('class', 'x inactive');
-
-    xText
+        
+        xText
         .append('text')
         .text('Household Income (Medium)')
+        .attr('dataId','income')
         .attr('class', 'x inactive')
         .attr('y', 20);
-
-    // Y TEXT
-    yText = svg
+        console.log(data[10]);
+        // Y TEXT
+        yText = svg
         .append('g')
         .attr('transform', `translate(${pad},${height / 2 - pad})rotate(-90)`);
-
-    yText
+        
+        yText
         .append('text')
         .text('Smokers (%)')
+        .attr('dataId','smokes')
         .attr('class', 'y inactive');
-
-    yText
+        
+        yText
         .append('text')
         .text('Lacks Healthcare (%)')
+        .attr('dataId','healthcare')
         .attr('class', 'y inactive')
         .attr('y', 20)
-
-    yText
+        
+        yText
         .append('text')
         .text('Obese (%)')
+        .attr('dataId','obesity')
         .attr('class', 'y active')
         .attr('y', -20)
 
@@ -114,7 +120,7 @@ d3.csv('assets/data/data.csv').then(data => {
         .data(data)
         .enter();
 
-    // ADD DIMENSIONS AND LOCATION 
+    // ADD CIRCLES 
     circles
         .append('circle')
         .attr('class', 'stateCircle')
@@ -124,7 +130,7 @@ d3.csv('assets/data/data.csv').then(data => {
         .transition()
         .duration(1000)
 
-    // ADD TEXT
+    // ADD TEXT TO CIRCLES
     circles
         .append('text')
         .attr('class', 'stateText')
@@ -136,12 +142,43 @@ d3.csv('assets/data/data.csv').then(data => {
 
     // EVENT LISTENER
     d3.selectAll('text').on('click', function () {
-        if(d3.select(this).attr('class').includes('x')){
+        let key = d3.select(this).attr('dataId');
+        
+    // ACTIVATE CLICKED TEXT
+        if(d3.select(this).classed('x')){
+
+            xMinMax = minMaxFx(key);
+            xScale = d3
+            .scaleLinear()
+            .domain(xMinMax)
+            .range([margin, width - margin]);
+    
             d3.selectAll('.x').classed('active',false).classed('inactive',true);
             d3.select(this).classed('active',true).classed('inactive',false);
+            
+            d3.selectAll('.stateCircle').each(function () {
+                d3.select(this).transition().duration(1000).attr('cx',d=>xScale(d[key]));
+            });
+            
+            d3.selectAll('.stateText').each(function () {
+                d3.select(this).transition().duration(1000).attr('dx',d=>xScale(d[key]));
+            })
         } else {
+            yMinMax = minMaxFx(key);
+            yScale = d3
+            .scaleLinear()
+            .domain(yMinMax)
+            .range([height - 2 * margin, 0])
+        
             d3.selectAll('.y').classed('active',false).classed('inactive',true);
             d3.select(this).classed('active',true).classed('inactive',false);
+
+            d3.selectAll('.stateCircle, .stateText').each(function () {
+                d3.select(this).transition().duration(1000).attr('cy',d=>yScale(d[key])+margin)
+            });
+            d3.selectAll('.stateText').each(function () {
+                d3.select(this).transition().duration(1000).attr('dy',d=>yScale(d[key]) + margin + radius / 3)
+            });
         };
     });
 });
