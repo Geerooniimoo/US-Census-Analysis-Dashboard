@@ -15,7 +15,7 @@ var svg = d3
     .style("background", "white")
 
 var circRadius;
-crGet = () => width <= 530 ? circRadius = 7 : circRadius = 14;
+crGet = () => width <= 530 ? circRadius =ca 7 : circRadius = 14;
 crGet();
 
 svg.append("g").attr("class", "xText");
