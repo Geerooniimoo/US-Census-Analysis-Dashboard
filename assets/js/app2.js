@@ -6,14 +6,19 @@ createYtextOnSVG();
 createXtextOnSVG();
 
 d3.csv('assets/data/data.csv').then(csvData => {
-yValue = 'obesity';
-xValue = 'poverty';
-    
     data = strToNumber(csvData);
+
+    xValue = 'poverty';
     xMinMax = minMaxFx(xValue);
-    createXaxis(xMinMax);
+    xScale = xScaleFx(xMinMax);
+    xAxis = createXaxis(xScale);
+
+    yValue = 'obesity';
     yMinMax = minMaxFx(yValue);
-    createYaxis(yMinMax)
+    yScale = yScaleFx(yMinMax)
+    yAxis = createYaxis(yScale);
+
+    createCircles();
 });
 
 // CREATE RESPONSIVE DIMENSIONS
@@ -97,6 +102,7 @@ function strToNumber(data) {
         data.smokes = +data.smokes;
         data.age = +data.age;
     });
+    return data;
 };
   
 // MIN/MAX FUNCTION
@@ -107,17 +113,36 @@ function minMaxFx(data, value){
 };
 
 // CREATE X SCALES
-function createXaxis(xMinMax) {
-    xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
-    xScale = d3.scaleLinear().domain(xMinMax).range([margin, width - margin]);
+function xScaleFx(xMinMax) {
+    var xScale = d3.scaleLinear().domain(xMinMax).range([margin, width - margin]);
+    return xScale;
+}
+function createXaxis(xScale) {
+   var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
     xAxis.call(d3.axisBottom(xScale));
+    return xAxis;
 };
 
-function createYaxis(yMinMax) {
+function yScaleFx(yMinMax){
+    var yScale = d3.scaleLinear().domain(yMinMax).range([height - 2 * margin, 0]);
+    return yScale;
+}
+function createYaxis(yScale) {
     yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
-    yScale = d3.scaleLinear().domain(yMinMax).range([height - 2 * margin, 0])
+    yAxis.call(d3.axisLeft(yScale));
+    return yAxis;
 };
 
+// CREATE CIRCLES
+function createCircles() {
+    circles = svg.selectAll('circle').data(data).enter();
+    circles
+        .append('circle')
+        .attr('class', 'stateCircle')
+        .attr('r', radius)
+        .attr('cx', d => xScale(d[xValue]))
+        .attr('cy', d => yScale(d[yValue]) + margin);
+};
 
 // GET DATA 
 // d3.csv('assets/data/data.csv').then(data => {
