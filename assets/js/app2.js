@@ -6,19 +6,19 @@ createYtextOnSVG();
 createXtextOnSVG();
 
 d3.csv('assets/data/data.csv').then(csvData => {
-    data = strToNumber(csvData);
+    let data = strToNumber(csvData);
 
-    xValue = 'poverty';
-    xMinMax = minMaxFx(xValue);
-    xScale = xScaleFx(xMinMax);
-    xAxis = createXaxis(xScale);
+    let xValue = 'poverty';
+    let xMinMax = minMaxFx(xValue);
+    let xScale = xScaleFx(xMinMax);
+    let xAxis = createXaxis(xScale);
 
-    yValue = 'obesity';
-    yMinMax = minMaxFx(yValue);
-    yScale = yScaleFx(yMinMax)
-    yAxis = createYaxis(yScale);
+    let yValue = 'obesity';
+    let yMinMax = minMaxFx(yValue);
+    let yScale = yScaleFx(yMinMax)
+    let yAxis = createYaxis(yScale);
 
-    createCircles();
+    createCircles(data, xScale, xValue, yScale, yValue);
 });
 
 // CREATE RESPONSIVE DIMENSIONS
@@ -43,28 +43,28 @@ function createSVG() {
 
 //CREATE X TEXT ON SVG
 function createXtextOnSVG() {
-xText = svg.append('g').attr('transform', `translate(${width / 2},${height})`);
+    xText = svg.append('g').attr('transform', `translate(${width / 2},${height})`);
 
-xText
-    .append('text')
-    .text('In Poverty (%)')
-    .attr('dataId', 'poverty')
-    .attr('class', 'x active')
-    .attr('y', -75);
+    xText
+        .append('text')
+        .text('In Poverty (%)')
+        .attr('dataId', 'poverty')
+        .attr('class', 'x active')
+        .attr('y', -75);
 
-xText
-    .append('text')
-    .text('Age (Medium)')
-    .attr('dataId', 'age')
-    .attr('class', 'x inactive')
-    .attr('y', -50);
+    xText
+        .append('text')
+        .text('Age (Medium)')
+        .attr('dataId', 'age')
+        .attr('class', 'x inactive')
+        .attr('y', -50);
 
-xText
-    .append('text')
-    .text('Household Income (Medium)')
-    .attr('dataId', 'income')
-    .attr('class', 'x inactive')
-    .attr('y', -25);
+    xText
+        .append('text')
+        .text('Household Income (Medium)')
+        .attr('dataId', 'income')
+        .attr('class', 'x inactive')
+        .attr('y', -25);
 };
 
 // CREATE Y TEXT ON SVG
@@ -104,9 +104,9 @@ function strToNumber(data) {
     });
     return data;
 };
-  
+
 // MIN/MAX FUNCTION
-function minMaxFx(data, value){
+function minMaxFx(data, value) {
     min = d3.min(data, d => d[value]) * 0.90;
     max = d3.max(data, d => d[value]) * 1.10;
     return [min, max]
@@ -116,17 +116,19 @@ function minMaxFx(data, value){
 function xScaleFx(xMinMax) {
     var xScale = d3.scaleLinear().domain(xMinMax).range([margin, width - margin]);
     return xScale;
-}
+};
+
 function createXaxis(xScale) {
-   var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
+    var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
     xAxis.call(d3.axisBottom(xScale));
     return xAxis;
 };
 
-function yScaleFx(yMinMax){
+function yScaleFx(yMinMax) {
     var yScale = d3.scaleLinear().domain(yMinMax).range([height - 2 * margin, 0]);
     return yScale;
-}
+};
+
 function createYaxis(yScale) {
     yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
     yAxis.call(d3.axisLeft(yScale));
@@ -134,14 +136,16 @@ function createYaxis(yScale) {
 };
 
 // CREATE CIRCLES
-function createCircles() {
-    circles = svg.selectAll('circle').data(data).enter();
+function createCircles(data, xScale, xValue, yScale, yValue) {
+    var circles = svg.selectAll('circle').data(data).enter();
     circles
         .append('circle')
         .attr('class', 'stateCircle')
         .attr('r', radius)
         .attr('cx', d => xScale(d[xValue]))
-        .attr('cy', d => yScale(d[yValue]) + margin);
+        .attr('cy', d => yScale(d[yValue]) + margin)
+        .transition()
+        .duration(1000);
 };
 
 // GET DATA 
@@ -156,7 +160,7 @@ function createCircles() {
 //         data.smokes = +data.smokes;
 //         data.age = +data.age;
 //     });
-        
+
 //     // MIN/MAX FUNCTION
 //     minMaxFx = value => {
 //         min = d3.min(data, d => d[value]) * 0.90;
@@ -172,7 +176,7 @@ function createCircles() {
 //     xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
 //     xScale = d3.scaleLinear().domain(xMinMax).range([margin, width - margin]);
 //     xAxis.call(d3.axisBottom(xScale));
-    
+
 //     yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
 //     yScale = d3.scaleLinear().domain(yMinMax).range([height - 2 * margin, 0]);
 //     yAxis.call(d3.axisLeft(yScale));
