@@ -9,16 +9,20 @@ d3.csv('assets/data/data.csv').then(csvData => {
     let data = strToNumber(csvData);
 
     let xValue = 'poverty';
-    let xMinMax = minMaxFx(xValue);
+    let xMinMax = minMaxFx(data, xValue);
     let xScale = xScaleFx(xMinMax);
     let xAxis = createXaxis(xScale);
 
     let yValue = 'obesity';
-    let yMinMax = minMaxFx(yValue);
+    let yMinMax = minMaxFx(data, yValue);
     let yScale = yScaleFx(yMinMax)
     let yAxis = createYaxis(yScale);
 
-    createCircles(data, xScale, xValue, yScale, yValue);
+    var circles = svg.selectAll('circle').data(data).enter();
+    createCircles(circles, data, xScale, xValue, yScale, yValue);
+    createStateText(circles, data, xScale,xValue, yScale, yValue);
+    
+    d3.select()
 });
 
 // CREATE RESPONSIVE DIMENSIONS
@@ -109,6 +113,7 @@ function strToNumber(data) {
 function minMaxFx(data, value) {
     min = d3.min(data, d => d[value]) * 0.90;
     max = d3.max(data, d => d[value]) * 1.10;
+    console.log([min, max]);
     return [min, max]
 };
 
@@ -136,17 +141,26 @@ function createYaxis(yScale) {
 };
 
 // CREATE CIRCLES
-function createCircles(data, xScale, xValue, yScale, yValue) {
-    var circles = svg.selectAll('circle').data(data).enter();
+function createCircles(circles, data, xScale, xValue, yScale, yValue) {
     circles
         .append('circle')
         .attr('class', 'stateCircle')
         .attr('r', radius)
-        .attr('cx', d => xScale(d[xValue]))
-        .attr('cy', d => yScale(d[yValue]) + margin)
+        .attr('cx', data => xScale(data[xValue]))
+        .attr('cy', data => yScale(data[yValue]) + margin)
         .transition()
         .duration(1000);
 };
+
+function createStateText(circles, data, xScale, xValue, yScale, yValue) {
+    circles
+        .append('text')
+        .attr('class','stateText')
+        .text(data => data.abbr)
+        .attr('dx', data => xScale(data[xValue]))
+        .attr('dy', data => yScale(data[yValue]) + margin + radius / 3)
+
+}
 
 // GET DATA 
 // d3.csv('assets/data/data.csv').then(data => {
