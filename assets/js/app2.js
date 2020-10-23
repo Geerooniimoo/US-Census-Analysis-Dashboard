@@ -1,28 +1,45 @@
 
 
 createResponsiveDimensions();
-createSVG();
+var svg = createSVG();
 createYtextOnSVG();
 createXtextOnSVG();
 
 d3.csv('assets/data/data.csv').then(csvData => {
-    let data = strToNumber(csvData);
+    var data = strToNumber(csvData);
 
-    let xValue = 'poverty';
-    let xMinMax = minMaxFx(data, xValue);
-    let xScale = xScaleFx(xMinMax);
-    let xAxis = createXaxis(xScale);
+    var xValue = 'poverty';
+    var xMinMax = minMaxFx(data, xValue);
+    var xScale = xScaleFx(xMinMax);
+    var xAxis = createXaxis(xScale);
 
-    let yValue = 'obesity';
-    let yMinMax = minMaxFx(data, yValue);
-    let yScale = yScaleFx(yMinMax)
-    let yAxis = createYaxis(yScale);
+    var yValue = 'obesity';
+    var yMinMax = minMaxFx(data, yValue);
+    var yScale = yScaleFx(yMinMax)
+    var yAxis = createYaxis(yScale);
 
     var circles = svg.selectAll('circle').data(data).enter();
-    createCircles(circles, data, xScale, xValue, yScale, yValue);
-    createStateText(circles, data, xScale,xValue, yScale, yValue);
+    createCircles(circles, xScale, xValue, yScale, yValue);
+    createStateText(circles, xScale,xValue, yScale, yValue);
     
-    d3.select()
+    d3.selectAll('.x, .y').on('click', function() {
+        
+        let key = d3.select(this).attr('dataId');
+        
+        if(d3.select(this).classed('x')) {
+        
+            xMinMax = minMaxFx(data, key);
+            xScale = xScaleFx(xMinMax);
+            xAxis.transition().duration(1000).call(d3.axisBottom(xScale));
+            d3.selectAll('.stateCircle').transition().duration(1000).attr('cx', d => xScale(d[key]));
+        } else {
+
+            yMinMax = minMaxFx(data, key);
+            yScale = yScaleFx(yMinMax)
+            yAxis.transition().duration(1000).call(d3.axisLeft(yScale));
+            d3.selectAll('.stateCircle').transition().duration(1000).attr('cy', d => yScale(d[key]));
+        };
+     });
 });
 
 // CREATE RESPONSIVE DIMENSIONS
@@ -36,13 +53,14 @@ function createResponsiveDimensions() {
 
 // CREATE SVG
 function createSVG() {
-    svg = d3
+    var svg = d3
         .select('#scatter')
         .append('svg')
         .style('background', 'white')
         .style('border-radius', '12px')
         .attr('width', width)
         .attr('height', height);
+    return svg;
 };
 
 //CREATE X TEXT ON SVG
@@ -113,7 +131,6 @@ function strToNumber(data) {
 function minMaxFx(data, value) {
     min = d3.min(data, d => d[value]) * 0.90;
     max = d3.max(data, d => d[value]) * 1.10;
-    console.log([min, max]);
     return [min, max]
 };
 
@@ -141,18 +158,16 @@ function createYaxis(yScale) {
 };
 
 // CREATE CIRCLES
-function createCircles(circles, data, xScale, xValue, yScale, yValue) {
+function createCircles(circles, xScale, xValue, yScale, yValue) {
     circles
         .append('circle')
         .attr('class', 'stateCircle')
         .attr('r', radius)
         .attr('cx', data => xScale(data[xValue]))
-        .attr('cy', data => yScale(data[yValue]) + margin)
-        .transition()
-        .duration(1000);
+        .attr('cy', data => yScale(data[yValue]) + margin);
 };
 
-function createStateText(circles, data, xScale, xValue, yScale, yValue) {
+function createStateText(circles, xScale, xValue, yScale, yValue) {
     circles
         .append('text')
         .attr('class','stateText')
@@ -160,7 +175,7 @@ function createStateText(circles, data, xScale, xValue, yScale, yValue) {
         .attr('dx', data => xScale(data[xValue]))
         .attr('dy', data => yScale(data[yValue]) + margin + radius / 3)
 
-}
+};
 
 // GET DATA 
 // d3.csv('assets/data/data.csv').then(data => {
