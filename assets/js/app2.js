@@ -3,41 +3,85 @@
 var { width, height, margin, radius } = createResponsiveDimensions();
 var svg = createSVG(width, height);
 var text = createTextOnSVG(svg, width, height);
-var gxScale, gyScale, gxAxis, gyAxis;
+var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
+var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
 
 d3.csv('assets/data/data.csv').then(csvData => {
-    data = strToNumber(csvData);
-
-    var xValue = 'poverty';
-    var { xScale, xAxis } = xScaleFx(data, xValue);
-
-    var yValue = 'healthcare';
-    var { yScale, yAxis } = yScaleFx(data, yValue)
-
-    var circles = svg.selectAll('circle').data(data).enter();
-    createCircles(circles, xScale, xValue, yScale, yValue);
-    createStateText(circles, xScale, xValue, yScale, yValue);
-
-    d3.selectAll('.x, .y').on('click', function () {
-
-        let key = d3.select(this).attr('dataId');
-        if (d3.select(this).classed('x')) {
-            xScale = xScaleFx(data, key);
-            d3.selectAll('.x').classed('active', false).classed('inactive', 'true');
-            xAxis.transition().duration(1000).call(d3.axisBottom(xScale));
-            d3.selectAll('.stateCircle').transition().duration(1000).attr('cx', d => xScale(d[key]));
-            d3.selectAll('.stateText').transition().duration(1000).attr('dx', d => xScale(d[key]));
-        } else {
-            yScale = yScaleFx(data, key)
-            d3.selectAll('.y').classed('active', false).classed('inactive', 'true');
-            yAxis.transition().duration(1000).call(d3.axisLeft(yScale));
-            d3.selectAll('.stateCircle').transition().duration(1000).attr('cy', d => yScale(d[key]));
-            d3.selectAll('.stateText').transition().duration(1000).attr('dy', d => yScale(d[key]));
-        };
-
-        d3.select(this).classed('active', true).classed('inactive', false);
-    });
+    showCicles(csvData);
+    d3.selectAll('.x, .y').on('click', () => showCicles(csvData));
 });
+
+function showCicles(csvData) {
+    var data = strToNumber(csvData);
+
+    // if (d3.select(this).attr('dataId')) {
+    //     if (d3.select(this).classed('x')) {
+    //         d3.selectAll('.x').classed('active', false).classed('inactive', 'true');
+    //     } else {
+    //         d3.selectAll('.y').classed('active', false).classed('inactive', 'true');
+    //     };
+    //     d3.select(this).classed('active', true).classed('inactive', false);
+    // };
+
+    var xValue = d3.select('.x').filter('.active').attr('dataId'); //poverty
+    var xScale = xScaleFx(data, xValue);
+    xAxis.call(d3.axisBottom(xScale));
+    var xArr = data.map(obj => xScale(obj[xValue]));
+
+    var yValue = d3.select('.y').filter('.active').attr('dataId'); //obesity
+    var yScale = yScaleFx(data, yValue)
+    yAxis.call(d3.axisLeft(yScale));
+    var yArr = data.map(obj => yScale(obj[yValue]));
+
+    var circleGroup = svg.append('g');
+    var states = data.map(obj => obj.abbr);
+
+    circleGroup.html('');
+
+    for (let i = 0; i < xArr.length; i++) {
+        var circle = circleGroup.append('g');
+
+        circle
+            .append('circle')
+            .attr('r', radius)
+            .attr('class', 'stateCircle')
+            .attr('cx', xArr[i])
+            .attr('cy', yArr[i]);
+        circle
+            .append('text')
+            .attr('class', 'stateText')
+            .text(states[i])
+            .attr('dx', xArr[i])
+            .attr('dy', yArr[i] + radius * .25);
+    };
+};
+
+
+
+
+// var circles = svg.selectAll('circle').data(data).enter();
+// createCircles(circles, xScale, xValue, yScale, yValue);
+// createStateText(circles, xScale, xValue, yScale, yValue);
+
+// d3.selectAll('.x, .y').on('click', function () {
+
+//     let key = d3.select(this).attr('dataId');
+//     if (d3.select(this).classed('x')) {
+//         xScale = xScaleFx(data, key);
+//         d3.selectAll('.x').classed('active', false).classed('inactive', 'true');
+//         xAxis.call(d3.axisBottom(xScale));
+//         d3.selectAll('.stateCircle').transition().duration(1000).attr('cx', d => xScale(d[key]));
+//         d3.selectAll('.stateText').transition().duration(1000).attr('dx', d => xScale(d[key]));
+//     } else {
+//         yScale = yScaleFx(data, key)
+//         d3.selectAll('.y').classed('active', false).classed('inactive', 'true');
+//         yAxis.call(d3.axisLeft(yScale));
+//         d3.selectAll('.stateCircle').transition().duration(1000).attr('cy', d => yScale(d[key]));
+//         d3.selectAll('.stateText').transition().duration(1000).attr('dy', d => yScale(d[key]));
+//     };
+
+//     d3.select(this).classed('active', true).classed('inactive', false);
+// });
 
 // CREATE RESPONSIVE DIMENSIONS
 function createResponsiveDimensions() {
@@ -63,7 +107,7 @@ function createSVG(width, height) {
 //CREATE TEXT ON SVG
 function createTextOnSVG(svg, width, height) {
     var text = svg.append('g');
-    
+
     var xText = text.append('g').attr('transform', `translate(${width / 2},${height})`);
 
     xText
@@ -128,45 +172,26 @@ function strToNumber(data) {
 
 // X MIN/MAX FUNCTION
 function xMinMaxFx(data, value) {
-    xMin = d3.min(data, d => d[value])*0.94;
-    xMax = d3.max(data, d => d[value])*1.042;
+    xMin = d3.min(data, d => d[value]) * 0.94;
+    xMax = d3.max(data, d => d[value]) * 1.042;
     return [xMin, xMax]
 };
 // Y MIN/MAX FUNCTION
 function yMinMaxFx(data, value) {
-    yMin = d3.min(data, d => d[value]);
-    yMax = d3.max(data, d => d[value])*1.40;
+    yMin = d3.min(data, d => d[value]) * 1.10;
+    yMax = d3.max(data, d => d[value]) * 1.20;
     return [yMin, yMax]
 };
 
 // CREATE X SCALES
 function xScaleFx(data, xValue) {
-
     var xScale = d3.scaleLinear().domain(xMinMaxFx(data, xValue)).range([margin, width - margin]);
-
-    var xAxis = createXaxis(xScale);
-
-    return {xScale, xAxis};
-};
-
-function createXaxis(xScale) {
-    var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
-    xAxis.call(d3.axisBottom(xScale));
-    return xAxis;
+    return xScale;
 };
 
 function yScaleFx(data, yValue) {
     var yScale = d3.scaleLinear().domain(yMinMaxFx(data, yValue)).range([height - margin * 2, 0]);
-
-    var yAxis = createYaxis(yScale);
-
-    return { yScale, yAxis };
-};
-
-function createYaxis(yScale) {
-    var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
-    yAxis.call(d3.axisLeft(yScale));
-    return yAxis;
+    return yScale;
 };
 
 // CREATE CIRCLES
