@@ -5,35 +5,39 @@ var svg = createSVG(width, height);
 var text = createTextOnSVG(svg, width, height);
 var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
 var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
+var circleGroup = svg.append('g');
 
 d3.csv('assets/data/data.csv').then(csvData => {
     showCicles(csvData);
-    d3.selectAll('.x, .y').on('click', () => showCicles(csvData));
+    d3.selectAll('.x, .y').on('click', function () {
+
+        if (d3.select(this).classed('x')) {
+            d3.selectAll('.x').classed('active', false).classed('inactive', 'true');
+        } else {
+            d3.selectAll('.y').classed('active', false).classed('inactive', 'true');
+        };
+        d3.select(this).classed('active', true).classed('inactive', false);
+
+        showCicles(csvData)
+    });
 });
 
 function showCicles(csvData) {
+
     var data = strToNumber(csvData);
 
-    // if (d3.select(this).attr('dataId')) {
-    //     if (d3.select(this).classed('x')) {
-    //         d3.selectAll('.x').classed('active', false).classed('inactive', 'true');
-    //     } else {
-    //         d3.selectAll('.y').classed('active', false).classed('inactive', 'true');
-    //     };
-    //     d3.select(this).classed('active', true).classed('inactive', false);
-    // };
 
-    var xValue = d3.select('.x').filter('.active').attr('dataId'); //poverty
+
+    var xValue = d3.selectAll('.x').filter('.active').attr('dataId'); //poverty
     var xScale = xScaleFx(data, xValue);
     xAxis.call(d3.axisBottom(xScale));
     var xArr = data.map(obj => xScale(obj[xValue]));
 
-    var yValue = d3.select('.y').filter('.active').attr('dataId'); //obesity
+    var yValue = d3.selectAll('.y').filter('.active').attr('dataId'); //obesity
     var yScale = yScaleFx(data, yValue)
     yAxis.call(d3.axisLeft(yScale));
     var yArr = data.map(obj => yScale(obj[yValue]));
 
-    var circleGroup = svg.append('g');
     var states = data.map(obj => obj.abbr);
 
     circleGroup.html('');
@@ -45,12 +49,16 @@ function showCicles(csvData) {
             .append('circle')
             .attr('r', radius)
             .attr('class', 'stateCircle')
+            .transition()
+            .duration(1000)
             .attr('cx', xArr[i])
             .attr('cy', yArr[i]);
         circle
             .append('text')
             .attr('class', 'stateText')
             .text(states[i])
+            .transition()
+            .duration(1000)
             .attr('dx', xArr[i])
             .attr('dy', yArr[i] + radius * .25);
     };
