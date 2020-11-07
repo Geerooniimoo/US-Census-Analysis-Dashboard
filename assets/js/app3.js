@@ -5,21 +5,34 @@ var svg = createSVG(width, height);
 var text = createTextOnSVG(svg, width, height);
 var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
 var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
+var xValue = d3.selectAll('.x').filter('.active').attr('dataId'); // poverty
+var yValue = d3.selectAll('.y').filter('.active').attr('dataId'); // obesity
 
-var data;
+var toolTip = d3.tip().attr('class','d3-tip rounded-lg').html(function (d) {
+    var output = 
+    `<div class="text-center p-4 border">
+        <h3>${d.state}</h3>
+        <h5>${xValue}: ${d[xValue]}</h5>
+        <h5>${yValue}: ${d[yValue]}</h5>
+    </div>`;
+
+    return output;
+});
+
+svg.append('g').attr('transform',`translate(${width/2})`).call(toolTip);
+
 d3.csv('assets/data/data.csv').then(csvData => {
-    data = strToNumber(csvData);
+    var data = strToNumber(csvData);
 
-    var xValue = d3.selectAll('.x').filter('.active').attr('dataId');
     var xScale = xScaleFx(data, xValue);
     xAxis.call(d3.axisBottom(xScale));
     
-    var yValue = d3.selectAll('.y').filter('.active').attr('dataId');
     var yScale = yScaleFx(data, yValue);
     yAxis.call(d3.axisLeft(yScale));
     
     var circleGroup = svg.append('g').selectAll('g').data(data).enter();
     var circle = circleGroup.append('g');
+
     circle
         .append('circle')
         .attr('r', radius)
@@ -32,6 +45,10 @@ d3.csv('assets/data/data.csv').then(csvData => {
         .attr('class', 'stateText')
         .attr('x', d => xScale(d[xValue]))
         .attr('y', d => yScale(d[yValue]));
+     circle
+        .on('mouseover',function(d) {
+            toolTip.show(d, this);
+        });   
 
     d3.selectAll('.x, .y').on('click', moveCircles);
 
@@ -66,8 +83,6 @@ d3.csv('assets/data/data.csv').then(csvData => {
             .attr('y', d => yScale(d[yValue]));
     };
 });
-
-
 
 // CREATE RESPONSIVE DIMENSIONS
 function createResponsiveDimensions() {
@@ -178,3 +193,4 @@ function yScaleFx(data, yValue) {
     var yScale = d3.scaleLinear().domain(yMinMaxFx(data, yValue)).range([height - margin * 2, 0]);
     return yScale;
 };
+
