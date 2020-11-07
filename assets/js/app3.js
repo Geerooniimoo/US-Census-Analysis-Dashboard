@@ -2,6 +2,7 @@
 
 var { width, height, margin, radius } = createResponsiveDimensions();
 var svg = createSVG(width, height);
+svg.append('g').style('background','yellow').style('width',width*.90).style('height',height*.90)
 var text = createTextOnSVG(svg, width, height);
 var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
 var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
@@ -11,15 +12,15 @@ var yValue = d3.selectAll('.y').filter('.active').attr('dataId'); // obesity
 var toolTip = d3.tip().attr('class','d3-tip rounded-lg').html(function (d) {
     var output = 
     `<div class="text-center p-4 border">
-        <h3>${d.state}</h3>
-        <h5>${xValue}: ${d[xValue]}</h5>
-        <h5>${yValue}: ${d[yValue]}</h5>
+        <h4>${d.state}</h4>
+        <h6>${xValue}: ${d[xValue]}</h6>
+        <h6>${yValue}: ${d[yValue]}</h6>
     </div>`;
 
     return output;
 });
 
-svg.append('g').attr('transform',`translate(${width/2})`).call(toolTip);
+svg.append('g').call(toolTip);
 
 d3.csv('assets/data/data.csv').then(csvData => {
     var data = strToNumber(csvData);
@@ -48,6 +49,9 @@ d3.csv('assets/data/data.csv').then(csvData => {
      circle
         .on('mouseover',function(d) {
             toolTip.show(d, this);
+        })   
+        .on('mouseout',function(d) {
+            toolTip.hide(d, this);
         });   
 
     d3.selectAll('.x, .y').on('click', moveCircles);
@@ -98,10 +102,18 @@ function createSVG(width, height) {
     var svg = d3
         .select('#scatter')
         .append('svg')
-        .style('background', 'white')
+        .style('background', 'radial-gradient(darkcyan, black)')
         .style('border-radius', '12px')
         .attr('width', width)
         .attr('height', height);
+    // svg
+    //     .append('rect')
+    //     .attr('fill','yellow')
+    //     .attr('width',width*.80)
+    //     .attr('height',height*.70)
+    //     .attr('x',width*.1)
+    //     .attr('y',height*.15)
+        
     return svg;
 };
 
