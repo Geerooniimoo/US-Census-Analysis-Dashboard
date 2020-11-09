@@ -1,9 +1,4 @@
-.iframeContainer {
-  padding: 20px;
-  border: 1px solid #e3e3e3;
-}
 
-/* Sticky Footer rules (https://getbootstrap.com/examples/sticky-footer/) */
 html {
   position: relative;
   min-height: 100%;
@@ -12,7 +7,13 @@ html {
 body {
   /* Padding bottom by footer height */
   padding-bottom: 80px;
-  background: radial-gradient(white 30%, black);
+  /* background: radial-gradient(white 30%, black); */
+}
+
+.mainDiv {
+  width: 95%;
+  height: 65vh;
+  margin: 0px auto;
 }
 
 #footer {
@@ -29,4 +30,34 @@ body {
 #footer p {
   margin: 0;
   font-size: 16px;
+}
+
+.axis {
+  color: white;
+}
+
+th {
+  white-space: nowrap;
+}
+
+.tableDiv {
+  height: 65vh;
+  margin: 0 auto 0 auto;
+  overflow: scroll;
+}
+
+.tableDiv::-webkit-scrollbar {
+  display: none;
+}
+
+p {
+  font-size: 1.7rem;
+  text-align: justify;
+}
+
+hr {
+  background-color: lightgray;
+  height: 4px;
+  width: 95%;
+  margin: 0 auto;
 }

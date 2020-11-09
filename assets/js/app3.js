@@ -4,8 +4,8 @@ var { width, height, margin, radius } = createResponsiveDimensions();
 var svg = createSVG(width, height);
 svg.append('g').style('background','yellow').style('width',width*.90).style('height',height*.90)
 var text = createTextOnSVG(svg, width, height);
-var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`);
-var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`);
+var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`).attr('class','axis');
+var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`).attr('class','axis');
 var xValue = d3.selectAll('.x').filter('.active').attr('dataId'); // poverty
 var yValue = d3.selectAll('.y').filter('.active').attr('dataId'); // obesity
 
@@ -23,13 +23,13 @@ var toolTip = d3.tip().attr('class','d3-tip rounded-lg').html(function (d) {
 svg.append('g').call(toolTip);
 
 d3.csv('assets/data/data.csv').then(csvData => {
-    var data = strToNumber(csvData);
+    data = strToNumber(csvData);
 
     var xScale = xScaleFx(data, xValue);
     xAxis.call(d3.axisBottom(xScale));
     
     var yScale = yScaleFx(data, yValue);
-    yAxis.call(d3.axisLeft(yScale));
+   yAxis.call(d3.axisLeft(yScale));
     
     var circleGroup = svg.append('g').selectAll('g').data(data).enter();
     var circle = circleGroup.append('g');
@@ -45,7 +45,7 @@ d3.csv('assets/data/data.csv').then(csvData => {
         .text(d => d.abbr)
         .attr('class', 'stateText')
         .attr('x', d => xScale(d[xValue]))
-        .attr('y', d => yScale(d[yValue]));
+        .attr('y', d => yScale(d[yValue]) + radius/4);
      circle
         .on('mouseover',function(d) {
             toolTip.show(d, this);
@@ -54,6 +54,7 @@ d3.csv('assets/data/data.csv').then(csvData => {
             toolTip.hide(d, this);
         });   
 
+    populateTable(data);
     d3.selectAll('.x, .y').on('click', moveCircles);
 
     function moveCircles() {
@@ -71,7 +72,10 @@ d3.csv('assets/data/data.csv').then(csvData => {
 
         xScale = xScaleFx(data, xValue);
         yScale = yScaleFx(data, yValue);
-    
+       
+        xAxis.transition().duration(1000).call(d3.axisBottom(xScale));
+        yAxis.transition().duration(1000).call(d3.axisLeft(yScale));
+
         newCircleLoc
             .select('circle')
             .transition()
@@ -84,7 +88,7 @@ d3.csv('assets/data/data.csv').then(csvData => {
             .transition()
             .duration(1000)
             .attr('x', d => xScale(d[xValue]))
-            .attr('y', d => yScale(d[yValue]));
+            .attr('y', d => yScale(d[yValue]) + radius/4);
     };
 });
 
@@ -128,21 +132,21 @@ function createTextOnSVG(svg, width, height) {
         .text('In Poverty (%)')
         .attr('dataId', 'poverty')
         .attr('class', 'x active')
-        .attr('y', -75);
+        .attr('y', -50);
 
     xText
         .append('text')
         .text('Age (Medium)')
         .attr('dataId', 'age')
         .attr('class', 'x inactive')
-        .attr('y', -50);
+        .attr('y', -30);
 
     xText
         .append('text')
         .text('Household Income (Medium)')
         .attr('dataId', 'income')
         .attr('class', 'x inactive')
-        .attr('y', -25);
+        .attr('y', -10);
 
     var yText = text.append('g').attr('transform', `translate(0,${height / 2})rotate(-90)`);
 
@@ -151,21 +155,21 @@ function createTextOnSVG(svg, width, height) {
         .text('Obese (%)')
         .attr('dataId', 'obesity')
         .attr('class', 'y active')
-        .attr('y', 25);
+        .attr('y', 20);
 
     yText
         .append('text')
         .text('Smokers (%)')
         .attr('dataId', 'smokes')
         .attr('class', 'y inactive')
-        .attr('y', 50);
+        .attr('y', 40);
 
     yText
         .append('text')
         .text('Lacks Healthcare (%)')
         .attr('dataId', 'healthcare')
         .attr('class', 'y inactive')
-        .attr('y', 75);
+        .attr('y', 60);
 
     return text;
 };
@@ -204,5 +208,18 @@ function xScaleFx(data, xValue) {
 function yScaleFx(data, yValue) {
     var yScale = d3.scaleLinear().domain(yMinMaxFx(data, yValue)).range([height - margin * 2, 0]);
     return yScale;
+};
+
+function populateTable(data) {
+    data.forEach(obj => {
+        var row = d3.select('tbody').append('tr');
+        row.append('th').text(obj.state);
+        row.append('td').text(`${obj.obesity}%`);
+        row.append('td').text(`${obj.smokes}%`);
+        row.append('td').text(`${obj.healthcare}%`);
+        row.append('td').text(`${obj.poverty}%`);
+        row.append('td').text(obj.age);
+        row.append('td').text(`$${obj.income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`);
+    });
 };
 
