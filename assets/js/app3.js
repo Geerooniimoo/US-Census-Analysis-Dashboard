@@ -98,6 +98,7 @@ function createResponsiveDimensions() {
     var height = width * 0.66;
     var margin = width * 0.10;
     var radius = .02 * width;
+    d3.select('.tableDiv').style('height',`${height}px`);
     return { width, height, margin, radius };
 };
 
@@ -131,22 +132,22 @@ function createTextOnSVG(svg, width, height) {
         .append('text')
         .text('In Poverty (%)')
         .attr('dataId', 'poverty')
-        .attr('class', 'x active')
-        .attr('y', -50);
+        .attr('class', 'x active aText')
+        .attr('y', -100);
 
     xText
         .append('text')
         .text('Age (Medium)')
         .attr('dataId', 'age')
-        .attr('class', 'x inactive')
-        .attr('y', -30);
+        .attr('class', 'x inactive aText')
+        .attr('y', -60);
 
     xText
         .append('text')
         .text('Household Income (Medium)')
         .attr('dataId', 'income')
-        .attr('class', 'x inactive')
-        .attr('y', -10);
+        .attr('class', 'x inactive aText')
+        .attr('y', -20);
 
     var yText = text.append('g').attr('transform', `translate(0,${height / 2})rotate(-90)`);
 
@@ -154,22 +155,22 @@ function createTextOnSVG(svg, width, height) {
         .append('text')
         .text('Obese (%)')
         .attr('dataId', 'obesity')
-        .attr('class', 'y active')
-        .attr('y', 20);
+        .attr('class', 'y active aText')
+        .attr('y', 30);
 
     yText
         .append('text')
         .text('Smokers (%)')
         .attr('dataId', 'smokes')
-        .attr('class', 'y inactive')
-        .attr('y', 40);
+        .attr('class', 'y inactive aText')
+        .attr('y', 60);
 
     yText
         .append('text')
         .text('Lacks Healthcare (%)')
         .attr('dataId', 'healthcare')
-        .attr('class', 'y inactive')
-        .attr('y', 60);
+        .attr('class', 'y inactive aText')
+        .attr('y', 100);
 
     return text;
 };

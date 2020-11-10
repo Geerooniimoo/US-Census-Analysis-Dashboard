@@ -1,6 +1,6 @@
 .aText {
   font-family: sans-serif;
-  font-size: 16px;
+  font-size: 1.7rem;
   text-anchor: middle;
 }
 
@@ -27,6 +27,7 @@
 .stateText {
   font-family: sans-serif;
   fill: black;
+  font-size: 1.7rem;
   text-anchor: middle;
 }
 
