@@ -12,7 +12,7 @@ body {
 
 .mainDiv {
   width: 95%;
-  height: 65vh;
+  height: 80vh;
   margin: 0px auto;
 }
 
@@ -41,7 +41,7 @@ th {
 }
 
 .tableDiv {
-  height: 65vh;
+  height: 100vh;
   margin: 0 auto 0 auto;
   overflow: scroll;
 }
@@ -51,8 +51,12 @@ th {
 }
 
 p {
-  font-size: 1.7rem;
+  font-size: 1.2rem;
   text-align: justify;
+}
+
+p::-webkit-scrollbar {
+  display: none;
 }
 
 hr {
@@ -60,4 +64,13 @@ hr {
   height: 4px;
   width: 95%;
   margin: 0 auto;
+}
+
+tbody {
+  overflow: scroll;
+  height: 60vh;
+}
+
+table {
+  height: 47vh;
 }

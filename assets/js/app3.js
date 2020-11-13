@@ -4,8 +4,8 @@ var { width, height, margin, radius } = createResponsiveDimensions();
 var svg = createSVG(width, height);
 svg.append('g').style('background','yellow').style('width',width*.90).style('height',height*.90)
 var text = createTextOnSVG(svg, width, height);
-var xAxis = svg.append('g').attr('transform', `translate(0,${height - margin})`).attr('class','axis');
-var yAxis = svg.append('g').attr('transform', `translate(${margin},${margin})`).attr('class','axis');
+var xAxis = svg.append('g').attr('transform', `translate(${width*.02},${height*.84})`).attr('class','axis');
+var yAxis = svg.append('g').attr('transform', `translate(${width*.12},${margin})`).attr('class','axis');
 var xValue = d3.selectAll('.x').filter('.active').attr('dataId'); // poverty
 var yValue = d3.selectAll('.y').filter('.active').attr('dataId'); // obesity
 
@@ -130,47 +130,53 @@ function createTextOnSVG(svg, width, height) {
 
     xText
         .append('text')
+        .style('font-size',width*.02)
         .text('In Poverty (%)')
         .attr('dataId', 'poverty')
         .attr('class', 'x active aText')
-        .attr('y', -100);
+        .attr('y', -height*.1);
 
     xText
         .append('text')
+        .style('font-size',width*.02)
         .text('Age (Medium)')
         .attr('dataId', 'age')
         .attr('class', 'x inactive aText')
-        .attr('y', -60);
+        .attr('y', -height*.06);
 
     xText
         .append('text')
+        .style('font-size',width*.02)
         .text('Household Income (Medium)')
         .attr('dataId', 'income')
         .attr('class', 'x inactive aText')
-        .attr('y', -20);
+        .attr('y', -height*.02);
 
     var yText = text.append('g').attr('transform', `translate(0,${height / 2})rotate(-90)`);
 
     yText
         .append('text')
+        .style('font-size',width*.02)
         .text('Obese (%)')
         .attr('dataId', 'obesity')
         .attr('class', 'y active aText')
-        .attr('y', 30);
+        .attr('y', width*.025);
 
     yText
         .append('text')
+        .style('font-size',width*.02)
         .text('Smokers (%)')
         .attr('dataId', 'smokes')
         .attr('class', 'y inactive aText')
-        .attr('y', 60);
+        .attr('y', width*.05);
 
     yText
         .append('text')
+        .style('font-size',width*.02)
         .text('Lacks Healthcare (%)')
         .attr('dataId', 'healthcare')
         .attr('class', 'y inactive aText')
-        .attr('y', 100);
+        .attr('y', width*.08);
 
     return text;
 };
@@ -189,7 +195,7 @@ function strToNumber(data) {
 
 // X MIN/MAX FUNCTION
 function xMinMaxFx(data, value) {
-    xMin = d3.min(data, d => d[value]) * 0.94;
+    xMin = d3.min(data, d => d[value])*.90;
     xMax = d3.max(data, d => d[value]) * 1.042;
     return [xMin, xMax]
 };
