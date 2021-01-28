@@ -111,13 +111,6 @@ function createSVG(width, height) {
         .style('border-radius', '12px')
         .attr('width', width)
         .attr('height', height);
-    // svg
-    //     .append('rect')
-    //     .attr('fill','yellow')
-    //     .attr('width',width*.80)
-    //     .attr('height',height*.70)
-    //     .attr('x',width*.1)
-    //     .attr('y',height*.15)
         
     return svg;
 };
