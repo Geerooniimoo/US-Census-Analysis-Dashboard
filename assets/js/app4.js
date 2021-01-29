@@ -56,16 +56,13 @@ yText
 
 var circles = svg.append('g').attr('class','circles');
 
-var xScale = svg
+var xScaleLoc = svg
     .append('g')
-    .attr('transform',`translate(${.10*width},${.85*height})`)
-    .call(d3.axisBottom(d3.scaleLinear().range([0,.80*width])));
+    .attr('transform',`translate(${.10*width},${.85*height})`);
 
-var yScale = svg
+var yScaleLoc = svg
     .append('g')
-    .attr('transform',`translate(${.10*width},${.85*height})`)
-    .transition()
-    .duration(5000);
+    .attr('transform',`translate(${.10*width},${.85*height})`);
 
 d3.csv('assets/data/data.csv').then(data => {
 
@@ -89,11 +86,17 @@ function showData() {
         var yVal = data.map(obj => +obj[ySel])
 
         // console.log(xVal.min());
+        var xScaler = d3.axisBottom(d3.scaleLinear()
+        .domain([d3.min(xVal),d3.max(xVal)])
+        .range([0,.80*width]));
 
-        xScale
-            .call(d3.axisBottom(d3.scaleLinear()
-            .domain([d3.min(xVal),d3.max(xVal)])
-            .range([0,.80*width])))
+        xScaleLoc.transition().duration(1000).call(xScaler);
+
+        var yScaler = d3.axisLeft(d3.scaleLinear()
+        .domain([d3.min(yVal),d3.max(yVal)])
+        .range([0,-.75*height]));
+
+        yScaleLoc.transition().duration(1000).call(yScaler);
 
         d3.selectAll('.circle').each(function(obj, i){
             d3
@@ -109,12 +112,13 @@ function showData() {
 
 d3.selectAll('.aText').on('click', function () {
     let sel = d3.select(this);
-    
-    if(sel.attr('class').includes(' x')){
+    console.log(sel.classed('x'));
+    if(sel.classed('x')){
         d3.selectAll('.x').filter('.active').classed('active',false).classed('inactive',true);
     } else {
         d3.selectAll('.y').filter('.active').classed('active',false).classed('inactive',true);
     };
     
     sel.classed('inactive',false).classed('active',true);
+    showData();
 });
