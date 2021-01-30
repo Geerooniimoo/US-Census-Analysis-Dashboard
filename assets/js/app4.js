@@ -54,24 +54,26 @@ yText
     .text('Lacks Healthcare (%)')
     .attr('class','aText y inactive');
 
-var circles = svg.append('g').attr('class','circles');
+var chart = svg.append('g').attr('transform',`translate(${.10*width},${.85*height})`);
+var xScaleLoc = chart.append('g').transition().duration(2000);
+var yScaleLoc = chart.append('g').transition().duration(2000);
+// var xScaleLoc = svg
+//     .append('g');
 
-var xScaleLoc = svg
-    .append('g')
-    .attr('transform',`translate(${.10*width},${.85*height})`);
-
-var yScaleLoc = svg
-    .append('g')
-    .attr('transform',`translate(${.10*width},${.85*height})`);
+// var yScaleLoc = svg
+//     .append('g');
 
 d3.csv('assets/data/data.csv').then(data => {
-
+    // xScale = xScaleLoc.call(d3.axisBottom(xScaler))
+    
+    // yScale = yScaleLoc.call(d3.axisLeft(yScaler))
+    
     data.forEach(obj => {
-        circles.append('g').attr('class','circle');
+        chart.append('g').attr('class','circles');
     });
-} );
+} ).then(showData);
 
-showData();
+// showData();
 
 function showData() {
     
@@ -82,21 +84,17 @@ function showData() {
         csvData = data;
         
         var abbr = data.map(obj => obj.abbr)
-        var xVal = data.map(obj => +obj[xSel])
-        var yVal = data.map(obj => +obj[ySel])
+        xVal = data.map(obj => +obj[xSel])
+        yVal = data.map(obj => +obj[ySel])
 
         // console.log(xVal.min());
-        var xScaler = d3.axisBottom(d3.scaleLinear()
-        .domain([d3.min(xVal),d3.max(xVal)])
-        .range([0,.80*width]));
+        xScaler = d3.scaleLinear().range([.8*width,0])
+        xScaleLoc.call(d3.axisBottom(xScaler));
 
-        xScaleLoc.transition().duration(1000).call(xScaler);
+        yScaler = d3.scaleLinear().range([0,-.75*height])
+        yScaleLoc.call(yScaler.domain([d3.min(yVal),d3.max(yVal)]));
 
-        var yScaler = d3.axisLeft(d3.scaleLinear()
-        .domain([d3.min(yVal),d3.max(yVal)])
-        .range([0,-.75*height]));
-
-        yScaleLoc.transition().duration(1000).call(yScaler);
+        yScaleLoc.transition().duration(1000).call(d3.axisLeft(yScaler));
 
         d3.selectAll('.circle').each(function(obj, i){
             d3
@@ -104,9 +102,9 @@ function showData() {
                 .append('circle')
                 .attr('r',10)
                 .attr('class','stateCircle')
-
+                .attr('cx',xScaler(xVal[i]))
+                .attr('cy',yScaler(yVal[i]))
         });        
-
     });
 };
 
