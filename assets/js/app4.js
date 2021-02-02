@@ -58,9 +58,10 @@ var chart = svg.append('g').attr('transform', `translate(${.10 * width},${.85 * 
 var xScaleLoc = chart.append('g').transition().duration(2000);
 var yScaleLoc = chart.append('g').transition().duration(2000);
 
+showData();
 
 function showData() {
-    
+
     d3.csv('assets/data/data.csv').then(data => {
         var xSel = d3.selectAll('.x').filter('.active').attr('data-id');
         var ySel = d3.selectAll('.y').filter('.active').attr('data-id');
@@ -78,27 +79,32 @@ function showData() {
                 .domain([d3.min(yVal), d3.max(yVal)].map(x => x * .97));
             yScaleLoc.call(d3.axisLeft(yScaler));
 
-            chart.selectAll('g').data(data).enter();
-            var circle = chart.append('g')
-                circle
-                    .append('circle')
-                    .attr('r', .02 * width)
-                    .attr('class', 'stateCircle')
-                    .attr('cx',d => -xScaler(d[xVal]))
-                    .attr('cy', yScaler(d[yVal]))
+            var circles = chart
+                .selectAll('circle')
+                .data(data)
+                .enter();
+
+            circles
+                .append('circle')
+                .attr('r', .02 * width)
+                .attr('class', 'stateCircle')
+                .attr('cx', d => {
+                    console.log(xScaler(d[xSel]))
+                    return xScaler(d[xSel])})
+                .attr('cy',d => yScaler(d[ySel]))
+                .transition().duration(5000)
         });
     });
-
-    d3.selectAll('.aText').on('click', function () {
-        let sel = d3.select(this);
-        console.log(sel.classed('x'));
-        if (sel.classed('x')) {
-            d3.selectAll('.x').filter('.active').classed('active', false).classed('inactive', true);
-        } else {
-            d3.selectAll('.y').filter('.active').classed('active', false).classed('inactive', true);
-        };
-
-        sel.classed('inactive', false).classed('active', true);
-        showData();
-    });
 };
+
+d3.selectAll('.aText').on('click', function () {
+    let sel = d3.select(this);
+    if (sel.classed('x')) {
+        d3.selectAll('.x').filter('.active').classed('active', false).classed('inactive', true);
+    } else {
+        d3.selectAll('.y').filter('.active').classed('active', false).classed('inactive', true);
+    };
+
+    sel.classed('inactive', false).classed('active', true);
+    showData();
+});
