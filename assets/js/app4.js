@@ -57,54 +57,51 @@ yText
 var chart = svg.append('g').attr('transform', `translate(${.10 * width},${.85 * height})`);
 var xScaleLoc = chart.append('g').transition().duration(2000);
 var yScaleLoc = chart.append('g').transition().duration(2000);
+var circkeLoc = chart.append('g');
 
-showData();
 
-function showData() {
+d3.csv('assets/data/data.csv').then(data => {
 
-    d3.csv('assets/data/data.csv').then(data => {
+    var circles = chart
+        .selectAll('g')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('r', .02 * width)
+        .attr('class', 'stateCircle');
+
+    showCircles();
+
+    function showCircles() {
+
         var xSel = d3.selectAll('.x').filter('.active').attr('data-id');
         var ySel = d3.selectAll('.y').filter('.active').attr('data-id');
 
-        d3.csv('assets/data/data.csv').then(data => {
-            var abbr = data.map(obj => obj.abbr)
-            xVal = data.map(obj => +obj[xSel])
-            yVal = data.map(obj => +obj[ySel])
+        xVal = data.map(obj => +obj[xSel])
+        yVal = data.map(obj => +obj[ySel])
 
-            xScaler = d3.scaleLinear().range([0, .8 * width])
-                .domain([d3.min(xVal), d3.max(xVal)].map(x => x * 1.05));
-            xScaleLoc.call(d3.axisBottom(xScaler));
+        xScaler = d3.scaleLinear().range([0, .8 * width]).domain([d3.min(xVal), d3.max(xVal)]);
+        xScaleLoc.call(d3.axisBottom(xScaler));
 
-            yScaler = d3.scaleLinear().range([0, -.75 * height])
-                .domain([d3.min(yVal), d3.max(yVal)].map(x => x * .97));
-            yScaleLoc.call(d3.axisLeft(yScaler));
+        yScaler = d3.scaleLinear().range([0, -.75 * height]).domain([d3.min(yVal), d3.max(yVal)]);
+        yScaleLoc.call(d3.axisLeft(yScaler));
 
-            var circles = chart
-                .selectAll('circle')
-                .data(data)
-                .enter();
-
-            circles
-                .append('circle')
-                .attr('r', .02 * width)
-                .attr('class', 'stateCircle')
-                .attr('cx', d => {
-                    console.log(xScaler(d[xSel]))
-                    return xScaler(d[xSel])})
-                .attr('cy',d => yScaler(d[ySel]))
-                .transition().duration(5000)
-        });
-    });
-};
-
-d3.selectAll('.aText').on('click', function () {
-    let sel = d3.select(this);
-    if (sel.classed('x')) {
-        d3.selectAll('.x').filter('.active').classed('active', false).classed('inactive', true);
-    } else {
-        d3.selectAll('.y').filter('.active').classed('active', false).classed('inactive', true);
+        d3.selectAll('circle')
+            .transition().duration(1000)
+            .attr('cx', d => xScaler(d[xSel]))
+            .attr('cy', d => yScaler(d[ySel]))
     };
 
-    sel.classed('inactive', false).classed('active', true);
-    showData();
+    d3.selectAll('.aText').on('click', function () {
+        let sel = d3.select(this);
+        if (sel.classed('x')) {
+            d3.selectAll('.x').filter('.active').classed('active', false).classed('inactive', true);
+        } else {
+            d3.selectAll('.y').filter('.active').classed('active', false).classed('inactive', true);
+        };
+
+        sel.classed('inactive', false).classed('active', true);
+        showCircles();
+    });
 });
+
