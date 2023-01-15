@@ -10,6 +10,11 @@ body {
   /* background: radial-gradient(white 30%, black); */
 }
 
+.display-3 {
+  font-size: 3rem;
+  text-decoration: underline;
+}
+
 .mainDiv {
   width: 95%;
   height: 80vh;
